@@ -14,6 +14,8 @@ public class TestingServlet extends HttpServlet {
 	pw.println("<head><title>Hello World</title></head>");
 	pw.println("<body>");
 	pw.println("Hello " + name);
+	java.util.Date date = new java.util.Date();
+        pw.println("<h2>"+"Current Date & Time: " +date.toString()+"</h2>");
 	pw.println("</body></html>");
               
 	}
