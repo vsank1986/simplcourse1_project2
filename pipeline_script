@@ -1,0 +1,23 @@
+node {
+    stage('SCM preparation') { 
+    git branch: 'main', credentialsId: 'gitcred', url: 'https://github.com/vsank1986/simplcourse1_project2'
+    }
+    stage('Docker build'){
+    sh "docker build -t vsank1986/mywebapp${currentBuild.number} . "
+  withCredentials([string(credentialsId: 'dockerhubcred', variable: 'DockerHubpwd')]) {
+    sh "docker login -u vsank1986 -p ${DockerHubpwd}"
+}
+  sh "docker push vsank1986/mywebapp${currentBuild.number}"
+  def dockerRun = "docker run -p 8080:8080 --name my-app --rm -d vsank1986/mywebapp${currentBuild.number}"
+ sshagent (credentials: ['awsuser']) {
+    sh "ssh -o StrictHostKeyChecking=no -l ubuntu ec2-3-92-77-68.compute-1.amazonaws.com docker stop my-app || true" 
+    sh "ssh -o StrictHostKeyChecking=no -l ubuntu ec2-3-92-77-68.compute-1.amazonaws.com ${dockerRun}"
+  }
+  
+    }
+     
+
+cleanWs disableDeferredWipeout: true, deleteDirs: true,notFailBuild: true
+
+
+}
